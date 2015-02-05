@@ -33,7 +33,7 @@ module.exports = (robot) ->
     start: true
     timeZone: 'Asia/Tokyo'
     onTick: -> 
-      robot.send {room: process.env.HUBOT_CHATWORK_ROOMS}, "ケンミンショーの日だよ！"
+      robot.send {room: process.env.HUBOT_CHATWORK_ROOMS}, return # "ケンミンショーの日だよ！"
   )
 
   # 宇都宮の天気
