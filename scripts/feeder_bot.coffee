@@ -34,7 +34,37 @@ module.exports = (robot) ->
     timeZone: 'Asia/Tokyo'
     onTick: -> 
       robot.send {room: process.env.HUBOT_CHATWORK_ROOMS}, "ケンミンショーの日だよ！"
+      options = 
+        url: "http://www.ytv.co.jp/kenmin_show/next/index.html"
+        timeout: 2000
+        headers: {'user-agent': 'node fetcher'}
+
+      request options, (error, response, body) ->
+        $ = cheerio.load body
+        titles = []
+        $('div.next_title').each  (i, elem) ->
+          titles[i] = $(this).text()
+        robot.send {room: process.env.HUBOT_CHATWORK_ROOMS}, "次回のケンミンショーは「"+titles[0]+"」「"+titles[1]+"」「"+titles[2]+"」の3本だぞ！"
+
+
   )
+
+  # 次回のケンミンショー
+  robot.respond /次回のケンミンショーは？$/i, (msg) ->
+    options = 
+      url: "http://www.ytv.co.jp/kenmin_show/next/index.html"
+      timeout: 2000
+      headers: {'user-agent': 'node fetcher'}
+
+    request options, (error, response, body) ->
+      $ = cheerio.load body
+      titles = $('div.next_title').text()
+      titles = []
+      $('div.next_title').each  (i, elem) ->
+        titles[i] = $(this).text()
+
+      msg.send("次回のケンミンショーは「"+titles[0]+"」「"+titles[1]+"」「"+titles[2]+"」の3本だぞ！")
+      
 
   # 宇都宮の天気
   robot.respond	/宇都宮の天気$/i, (msg) ->
@@ -60,3 +90,8 @@ module.exports = (robot) ->
       title = $('div.forecastCity').find('p.pict').first().text().replace(/\n/g, '')
       msg.send(title)
 
+  # webhook
+  robot.router.get "/hubot/#{process.env.HUBOT_ADDRESS}", (req, res) ->
+    robot.send {room: process.env.HUBOT_CHATWORK_ROOMS}, "pushされたで"
+    res.send 'OK'
+    
